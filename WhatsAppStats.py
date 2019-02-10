@@ -3,7 +3,7 @@ import re
 from datetime import date, datetime
 
 
-connection = sqlite3.connect("wa.db")
+connection = sqlite3.connect("chats.db")
 cursor = connection.cursor()
 
 def create_tables():
@@ -35,22 +35,29 @@ def analyse(archivo):
             minute = int(elem[4])
             name = elem[6]
             message = elem[7].rstrip()
-#            sql_command = """ INSERT INTO message(user,message,date) VALUES(?,?,?)"""
+            sql_command = """ INSERT INTO message(user,message,date) VALUES(?,?,?)"""
             date = datetime(year,month,day,hour,minute)
             cursor.execute(sql_command, (name, message, date))
     connection.commit()
 
 
-#create_tables()
-#analyse("chats.txt")
-sql_command = """
-SELECT strftime('%M', date) as valYear, count(message), usero
-FROM messagee
-GROUP BY valYear, usero
-HAVING user LIKE 'C%'
-"""
+create_tables()
+analyse("chats.txt")
+cursor.execute("SELECT DISTINCT user FROM message")
+print("Users")
+results = cursor.fetchall()
+for result in results:
+    print(result)
 
+print("Data")
+sql_command = """
+SELECT strftime('%m', date) as valMonth, strftime('%Y', date) as valYear, count(message), user
+FROM message
+GROUP BY valMonth, ValYear, user
+ORDER BY user, valYear, valMonth
+"""
+#
 cursor.execute(sql_command)
 results = cursor.fetchall()
 for result in results:
-    print(result[1])
+    print(result)
